@@ -5,7 +5,7 @@
 Reference：《A股择时之技术面指标测试》——华泰研究
 
 # 代码简介
-Technical_Factor为指标计算类
+Technical_Factor为指标计算类；
 Factor_Backtest为因子回测，只用运行这个
 
 # 文章简介
