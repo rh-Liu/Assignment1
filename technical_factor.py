@@ -1,20 +1,12 @@
 import datetime
-import os.path
 import matplotlib.pyplot as plt
 import pandas as pd
-from statsmodels.tsa.stattools import grangercausalitytests
-import tushare as ts
 import mplfinance as mpf
 pd.set_option('mode.chained_assignment', None)
 
 class Technical_Factor:
-    # def __init__(self):
-        # self.data = data
-        # self.data_weekly = data.resample('w').last()
-        # self.data_monthly = data.resample('M').last()
 
     def data_rename(self, dat):
-        # tp = dat.copy()
         dat.rename(columns={'ts_code': 'ts_code', 'close': 'PX_LAST', 'open': 'PX_OPEN', 'high': 'PX_HIGH', 'low': 'PX_LOW',
                  'vol': 'PX_VOLUME'}, inplace=True)
         return dat
@@ -298,36 +290,6 @@ class Technical_Factor:
                     dat.loc[date, 'RHL_'] = -1
         return dat
 
-    # def KDJ(self, dat, n=9, m1=3, m2=3):
-    #     k = self.EMA(dat['PX_LAST'], 2)
-    #     d = self.EMA(k, 2)
-    #     j = 3*k - 2*d
-    #     return k, d, j
-    # def KDJ_(self, dat, n=9, m1=3, m2=3):
-    #     dat['KDJ_K'], dat['KDJ_D'], dat['KDJ_J'] = self.KDJ(dat, n, m1, m2)
-    #     dat['KDJ_'] = 0
-    #     # for date in dat.index:
-    #     #     if dat.loc[date, 'KDJ_K'] < dat['KDJ_K'].quantile(0.4):
-    #     #         if dat.loc[date, 'KDJ_J'] > dat.loc[date, 'KDJ_K']\
-    #     #             and dat.loc[date, 'KDJ_K'] > dat.loc[date, 'KDJ_D']:
-    #     #             dat.loc[date, 'KDJ_'] = 1
-    #     # for date in dat.index:
-    #     #     if dat.loc[date, 'KDJ_K'] > dat['KDJ_K'].quantile(0.6):
-    #     #         if dat.loc[date, 'KDJ_J'] < dat.loc[date, 'KDJ_K'] \
-    #     #                 or dat.loc[date, 'KDJ_K'] < dat.loc[date, 'KDJ_D']:
-    #     #             dat.loc[date, 'KDJ_'] = -1
-    #     for date in dat.index:
-    #         if dat.loc[date, 'KDJ_K'] < dat.loc[date - datetime.timedelta(n):date, 'KDJ_K'].quantile(0.4):
-    #             if dat.loc[date, 'KDJ_J'] > dat.loc[date, 'KDJ_K'] \
-    #                                 and dat.loc[date, 'KDJ_K'] > dat.loc[date, 'KDJ_D']:
-    #                 dat.loc[date, 'KDJ_'] = 1
-    #         elif dat.loc[date, 'KDJ_K'] > dat.loc[date - datetime.timedelta(n):date, 'KDJ_K'].quantile(0.6):
-    #             if dat.loc[date, 'KDJ_J'] < dat.loc[date, 'KDJ_K'] \
-    #                                 or dat.loc[date, 'KDJ_K'] < dat.loc[date, 'KDJ_D']:
-    #                 dat.loc[date, 'KDJ_'] = -1
-    #     return dat
-
-
     def RSI(self, dat, n=6):
         temp = dat['PX_LAST']/dat['PX_LAST'].shift(1) - 1
         tmp = temp.copy()
@@ -393,11 +355,6 @@ class Technical_Factor:
                 dat['KING'] += dat['%s_A' % factor]*0.5
             else:
                 dat['KING'] += dat['%s_A' % factor]
-        # dat = self.ROC_(dat)
-        # dat = self.CCI_(dat)
-        # dat = self.MACD_(dat)
-        # dat = self.RSI_(dat)
-        # dat = self.RHL_(dat)
         return dat
     def KING_(self, dat, king_list=['ROC', 'CCI', 'MACD', 'RSI', 'RHL']):
         dat = self.KING(dat, king_list)
@@ -438,10 +395,6 @@ class Technical_Factor:
             dat.loc[dat.index[0], 'sell'] = min(dat['PX_LOW'])
             dat.loc[dat.index[0], 'positive'] = min(dat['PX_LOW'])
             dat.loc[dat.index[0], 'negative'] = min(dat['PX_LOW'])
-            # dat['buy'] = 0
-            # dat['sell'] = 0
-            # dat['positive'] = 0
-            # dat['negative'] = 0
         else:
             print('Win rate of %s: ' % factor, win / count, ' trade %s times' % count)
         return dat
@@ -478,23 +431,6 @@ class Technical_Factor:
                      datetime_format='%Y-%m-%d', xrotation=45, figscale=1.0)
         plt.show()
 
-        # grid = plt.GridSpec(3,4,wspace=0.5,hspace=0.5)
-        # # ax1 = plt.subplot(grid[0:2, 0:4])
-        # fig = mpf.figure(figsize=(6,6))
-        # ax1 = fig.add_subplot(grid[0:3, 0:4])
-        # ax1.plot(temp, type='candle', volume=True)
-        # # ax1.plot(dat['PX_LAST'], 'r')
-        # # ax1.set_title('Close Price')
-        # ax2 = fig.add_subplot(grid[2:3, 0:4])
-        # ax2.plot(temp['score'], alpha=0.3)
-        # ax3 = ax2.twinx()
-        # try:
-        #     ax3.plot(temp[factor], label=factor)
-        # except:
-        #     pass
-        #     # print("%s can't plot" % factor)
-        # plt.legend()
-        # plt.show()
 
     def evaluate(self, dat, factor_list):
         dat['return'] = dat['PX_LAST'] / dat['PX_LAST'].shift(1) - 1
@@ -505,8 +441,6 @@ class Technical_Factor:
         return dat
     def evaluate_plot(self, dat, factor_list):
         dat = self.evaluate(dat, factor_list)
-        # grangercausalitytests(dat[['return', 'score']].dropna(), maxlag=2)
-        # print('correlation between return and score: ', dat[['return', 'score']].corr().iloc[0, 1])
         fig = plt.figure()
         ax1 = fig.add_subplot(111)
         ax1.plot(dat['PX_LAST'], label='close', color='red')
