@@ -34,9 +34,7 @@ if __name__ == '__main__':
     end_date = '2022-01-01'
     data = get_data(start_date, end_date)
     temp = data.copy()
-    # factor_list = ['MACD', 'RSI', 'RHL', 'ROC']
-    # factor_list = ['ROC', 'MA', 'SMA', 'DMA', 'MACD', 'TRIX', 'BBI', 'BOLL', 'Aberration', 'BIAS', 'CCI', 'KDJ', 'RSI', 'CMO', 'RHL', 'KING']
-    factor_list = ['KING']
+    factor_list = ['ROC', 'MA', 'SMA', 'DMA', 'MACD', 'TRIX', 'BBI', 'BOLL', 'Aberration', 'BIAS', 'CCI', 'KDJ', 'RSI', 'CMO', 'RHL', 'KING']
 
     res_list = []
     for factor in factor_list:
@@ -98,20 +96,11 @@ if __name__ == '__main__':
         except:
             res_list.append([None]*7)
             print(factor, ' No trade finished')
-        # res_list = [[run[0].params.signal,
-        #              run[0].analyzers.ret.get_analysis()['rnorm'],
-        #              run[0].analyzers.sharpe.get_analysis()['sharperatio'],
-        #              run[0].analyzers.drawdone.get_analysis()['max']['drawdown'],
-        #              run[0].analyzers.analyzer.get_analysis()['len']['won']['total'] /
-        #              run[0].analyzers.analyzer.get_analysis()['len']['total'],
-        #              run[0].analyzers.analyzer.get_analysis()['len']['total'],
-        #              ] for run in strats]
 
-        # res_df.sort_values(by='win_rate', ascending=False, inplace=True)
         cb.plot()
 
     res_df = pd.DataFrame(res_list,
                           columns=['total pnl', 'avg won pnl', 'avg lost pnl', 'sharpe_ratio', 'max_drawdown', 'win_rate', 'trade_times'],
                           index=factor_list)
-    # res_df.to_csv('./result/result_1.csv')
+    res_df.to_csv('./result/result_1.csv')
     print('done')
