@@ -218,8 +218,8 @@ class Technical_Factor:
 
     def CCI(self, dat, n=14):
         tp = (dat['PX_HIGH']+dat['PX_LOW']+dat['PX_LAST']) / 3
-        ma = sum(tp.shift(i) for i in range(n+1)) / n
-        md = sum(abs(ma-tp).shift(i) for i in range(n+1)) / n
+        ma = sum(tp.shift(i) for i in range(n)) / n
+        md = sum(abs(ma-tp).shift(i) for i in range(n)) / n
         cci = (tp-ma) / (0.015*md)
         return cci
     def CCI_(self, dat, n=14):
@@ -235,14 +235,13 @@ class Technical_Factor:
     def KDJ(self, dat, n=9, m1=3, m2=3):
         ln = pd.DataFrame(index=dat.index)
         hn = pd.DataFrame(index=dat.index)
-        for date in dat.index:
-            ln.loc[date, 'ln'] = min(dat.loc[date-datetime.timedelta(days=n):date, 'PX_LAST'])
-            hn.loc[date, 'hn'] = max(dat.loc[date-datetime.timedelta(days=n):date, 'PX_LAST'])
+        for i, date in enumerate(dat.index):
+            if i >= n:
+                ln.loc[date, 'ln'] = min(dat.loc[dat.index[i-n]:date, 'PX_LAST'])
+                hn.loc[date, 'hn'] = max(dat.loc[dat.index[i-n]:date, 'PX_LAST'])
         rsv = 100 * (dat['PX_LAST'] - ln['ln']) / (hn['hn'] - ln['ln'])
-        k = [0] * len(dat['PX_LAST'])
-        d = [0] * len(dat['PX_LAST'])
-        k[0] = 50
-        d[0] = 50
+        k = [50] * len(dat['PX_LAST'])
+        d = [50] * len(dat['PX_LAST'])
         k = pd.Series(k, index=dat.index)
         d = pd.Series(d, index=dat.index)
         k = (m1 - 1) / m1 * k.shift(1) + 1 / m1 * rsv
@@ -261,14 +260,15 @@ class Technical_Factor:
         dat['KDJ_K'], dat['KDJ_D'], dat['KDJ_J'] = self.KDJ(dat, n, m1, m2)
         dat['KDJ_'] = 0
         for date in dat.index:
-            if dat.loc[date, 'KDJ_K'] < 20 or (dat.loc[date, 'KDJ_K'] > 50 and dat.loc[date, 'KDJ_K'] < 80):
+            if dat.loc[date, 'KDJ_J'] < 20 or (dat.loc[date, 'KDJ_J'] > 50 and dat.loc[date, 'KDJ_J'] < 80):
                 if dat.loc[date, 'KDJ_J'] > dat.loc[date, 'KDJ_K']\
                     and dat.loc[date, 'KDJ_K'] > dat.loc[date, 'KDJ_D']:
                     dat.loc[date, 'KDJ_'] = 1
-            elif dat.loc[date, 'KDJ_K'] > 80:
-                if dat.loc[date, 'KDJ_J'] < dat.loc[date, 'KDJ_K'] \
-                        or dat.loc[date, 'KDJ_K'] < dat.loc[date, 'KDJ_D']:
-                    dat.loc[date, 'KDJ_'] = -1
+            if dat.loc[date, 'KDJ_J'] > 80:
+                dat.loc[date, 'KDJ_'] = -1
+                # if dat.loc[date, 'KDJ_J'] < dat.loc[date, 'KDJ_K'] \
+                #         or dat.loc[date, 'KDJ_K'] < dat.loc[date, 'KDJ_D']:
+                #     dat.loc[date, 'KDJ_'] = -1
         return dat
 
     def RHL_(self, dat):
